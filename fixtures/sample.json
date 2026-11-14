@@ -1,0 +1,13 @@
+{
+  "source_id": "source-a",
+  "url": "https://example.test/source",
+  "status": 200,
+  "headers": [
+    [
+      "Content-Type",
+      "text/calendar"
+    ]
+  ],
+  "body_base64": "QkVHSU46VkNBTEVOREFSDQpWRVJTSU9OOjIuMA0KQkVHSU46VkVWRU5UDQpVSUQ6dGFsay1hDQpEVFNUQVJUOjIwMjYwMTAxVDA5MDAwMFoNClNVTU1BUlk6SW5kdXN0cnkgdGFsaw0KUlJVTEU6RlJFUT1XRUVLTFk7Q09VTlQ9Mg0KRU5EOlZFVkVOVA0KRU5EOlZDQUxFTkRBUg0K",
+  "metadata": {}
+}
