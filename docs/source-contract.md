@@ -14,5 +14,13 @@ fetch(url,source_id,method,headers,body,max_bytes)保留方法和请求体，读
 
 ## 当前能力与配置
 
-当前app.baseline.analyze只产生一份响应的概览，兼容入口继续保留；新采集可增加入口，不能把字节摘要等同于协议或业务完整性。
+app.baseline.analyze只产生一份响应的概览，兼容入口继续保留；新采集入口为app.collect与app.service.collect_packet/collect_window，不能把字节摘要等同于协议或业务完整性。
 metadata={}。读取预算、授权范围和来源凭据属于调用配置，真实密钥不放在资料目录或交付证据中。
+
+## 实例采集口径
+
+app.collect.collect_response(response,window_start,window_end,floating_tz,tz_map,state)按UTC半开窗交付实例。采集窗与状态都以半开区间为准，窗口变化视为新的采集口径，不跨窗复用交付记录。
+实例键为(source_id,UID,原始RECURRENCE-ID)；RECURRENCE-ID规范化为D:日期、L:浮动、T:TZID、Z:UTC四种形式。实例记录带start_utc/end_utc、original_start_utc（被例外改期时）、in_window与window_role：effective表示有效发生落在窗内；shadow表示原发生在窗内但已取消或调到窗外，变化不丢失。provenance记录组件序号、来源角色(rrule/rdate/exception/thisandfuture)与响应sha256。
+RRULE/RDATE/EXDATE按契约子集展开，RECURRENCE-ID例外替换单场；THISANDFUTURE把系列截断后以例外组件为新序列起点（调期）或截断并报告窗内取消（STATUS:CANCELLED）；多个THISANDFUTURE、重复主组件、重复例外、PERIOD形RDATE等一律记为未能展开，不按文件顺序裁决也不静默少采。
+展开在本地墙钟空间进行再逐场换算UTC，跨夏令时不按固定秒数平移；本地空洞按切换前偏移解释（等价向前平移），重叠取先发生的时刻。全天DATE与浮动时间用floating_tz（来源预登记时区）解释。TZID优先取来源VTIMEZONE或tz_map冻结映射（缺省回退本机IANA快照），二者都有且偏移不一致时报tz-conflict，都不认识时报unknown-tz。
+结果complete为真才表示该版本实例采集完整；存在unexpanded或结构错误时不写状态、下次重取重算。state（StateStore，可落盘）按(source_id,采集窗)记录已交付版本；版本以实体sha256为准，相同版本重复取得返回unchanged不重复交付，版本变化时changes区分added/revoked/modified并保留旧实例载荷与来源。
